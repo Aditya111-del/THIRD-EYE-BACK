@@ -1,3 +1,4 @@
+
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
@@ -5,10 +6,11 @@ import { connectDB, isDbConnected } from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 
 const app = express();
-const PORT = process.env.PORT || 5001;
 
-// Initialize MongoDB connection
-connectDB();
+// Render provides PORT automatically.
+// Use 5001 only as a local development fallback.
+const PORT = Number(process.env.PORT) || 5001;
+const HOST = "0.0.0.0";
 
 // Middleware
 app.use(cors());
@@ -56,12 +58,17 @@ app.use((req, res) => {
 // Global error handler
 app.use((err, req, res, next) => {
   console.error("[Backend Uncaught Error]:", err);
+
   res.status(err.status || 500).json({
     success: false,
     message: err.message || "Internal server error",
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`Third Eye Backend running on http://localhost:${PORT}`);
+// Start the server
+app.listen(PORT, HOST, () => {
+  console.log(`Third Eye Backend running on ${HOST}:${PORT}`);
 });
+
+// Initialize MongoDB connection
+connectDB();
